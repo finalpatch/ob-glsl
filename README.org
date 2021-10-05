@@ -1,0 +1,70 @@
+#+TITLE:     GLSL code blocks for Emacs Org-mode
+
+* Requirements
+  - SDL2 (for creating OpenGL context)
+  - SDL2_image (for saving PNG files)
+  - glbinding (for OpenGL SDK)
+
+  The rendering is done with OpenGL 3.3 so should work on any graphcs card.
+
+* Building
+  1. Generate project with CMake:
+     #+begin_src sh
+     cmake -G "Ninja" .
+     #+end_src
+
+  2. Build the code:
+     #+begin_src sh
+     ninja
+     #+end_src
+
+  This will create the Emacs dynamic module ~ob-glsl-module.so~ or
+  ~ob-glsl-module.dll~.
+
+* Installing
+  1. Put both ~ob-glsl.el~ and the dynamic module under your elisp load path.
+  2. Add ~(glsl . t)~ to ~org-babel-load-languages~.  You can either customize
+     the variable or add it manually in lisp code.
+
+* Supported parameters
+  - ~:file~
+    The output file path (required)
+  - ~:width~
+    The render width in pixels
+  - ~:height~
+    The render height in pixels
+
+  You can omit either ~:width~ or ~:height~ and the omitted one will be
+  calculated based on the other parameter. If you omit both, then the default
+  output size is 400x300.
+
+* A simple pixel shader example
+#+BEGIN_SRC glsl :file img/mandel.png :width 600 :height 450
+  vec3 mandel(vec2 z0) {
+      float k = 0.0;
+      vec2 z = vec2(0.0);
+      for(int i = 0; i < 420; ++i) {
+          z = vec2(z.x*z.x-z.y*z.y, z.x*z.y*2.0) + z0;
+          if (length(z) > 20.0) break;
+          k += 1.0;
+      }
+      float mu = k + 1.0 - log2(log(length(z)));
+      return sin(mu*0.1 + vec3(0.0,0.5,1.0));
+  }
+  void main() {
+      float ar = iResolution.x / iResolution.y;
+      vec2 uv = gl_FragCoord.xy / iResolution.yy - vec2(0.66 * ar, 0.5);
+      // uv = uv * 2.0 + vec2(-0.3, 0.0);
+      float p = 30.0;
+      float t = mod(13.0, p);
+      if (t > p/2.0) t = p - t;
+      float scale = 0.5 + pow(2.0, t);
+      vec2 offset = vec2(-1.36799, .01);
+      uv += offset*scale;
+      uv /= scale;
+      fragColor = vec4(mandel(uv), 1.0);
+  }
+#+END_SRC
+
+#+RESULTS:
+[[file:img/mandel.png]]
