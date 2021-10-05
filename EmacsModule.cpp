@@ -36,8 +36,15 @@ emacs_value reportError(emacs_env *env, const std::exception& e) {
     std::string msg = e.what();
     emacs_value Qmsg = env->make_string(env, msg.data(), msg.size());
     emacs_value Qnil = env->intern(env, "nil");
-    env->non_local_exit_signal(env, Qerr, Qnil);
+    emacs_value Qdata = env->funcall(env, env->intern(env, "list"), 1, &Qmsg);
+    env->non_local_exit_signal(env, Qerr, Qdata);
     return Qnil;
+}
+
+void provide(emacs_env *env, const char *feature) {
+    emacs_value Qfeat = env->intern(env, feature);
+    emacs_value Qprovide = env->intern(env, "provide");
+    env->funcall(env, Qprovide, 1, &Qfeat);
 }
 
 int plugin_is_GPL_compatible;

@@ -1,7 +1,5 @@
 (require 'ob)
-
-;; (load "libobshader.dll")
-(load "c:/Users/final/code/ob-shader/libobshader.dll")
+(require 'ob-glsl-module)
 
 (defvar org-babel-default-header-args:glsl
   '((:results . "file") (:exports . "results"))
@@ -22,10 +20,16 @@ This function is called by `org-babel-execute-src-block'."
                    (cdr (or (assq :file params)
 			                (error "You need to specify a :file parameter")))
                    t))
-        (glsl-code (org-babel-expand-body:glsl body params)))
-
-    (message (concat "output file: " out-file))
-    (obshader-run glsl-code 400 300 out-file)
+        (glsl-code (org-babel-expand-body:glsl body params))
+        (render-width (cdr (assq :width params)))
+        (render-height (cdr (assq :height params))))
+    (if (and (not render-width) render-height)
+        (setq render-width (* 4 (/ render-height 3))))
+    (if (and (not render-height) render-width)
+        (setq render-height (* 3 (/ render-width 4))))
+    (if (and (not render-width) (not render-height))
+        (setq render-width 400 render-height 300))
+    (ob-glsl-run glsl-code render-width render-height out-file)
     nil))
 
 (defun org-babel-prep-session:shady (_session _params)

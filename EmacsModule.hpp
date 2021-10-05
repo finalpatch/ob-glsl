@@ -29,6 +29,8 @@ emacs_value sym(emacs_env *env, const std::string& name);
 
 emacs_value reportError(emacs_env *env, const std::exception& e);
 
+void provide(emacs_env *env, const char *feature);
+
 template <class... ARGS>
 void bindFunction(emacs_env *env, emacs_value f(emacs_env*, ARGS...), const char* name) {
     auto numArgs = sizeof...(ARGS);

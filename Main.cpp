@@ -88,5 +88,6 @@ int emacs_module_init (emacs_runtime *ert) noexcept {
         reportError(env, e);
     }
     bindFunction(env, obGlslRun, "ob-glsl-run");
+    provide(env, "ob-glsl-module");
     return 0;
 }

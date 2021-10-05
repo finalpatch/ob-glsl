@@ -3,6 +3,7 @@
 #include <glbinding/Binding.h>
 #include <glbinding/gl33core/gl.h>
 #include <vector>
+#include <string>
 
 using namespace gl33core;
 
@@ -20,9 +21,9 @@ public:
         {
             GLint errLength;
             glGetShaderiv(_handle, GL_INFO_LOG_LENGTH, &errLength);
-            std::vector<char> errLog(errLength+1, '\0');
+            std::string errLog(errLength, '\0');
             glGetShaderInfoLog(_handle, errLength, &errLength, errLog.data());
-            throw std::runtime_error("shader compilation failed" + errLog);
+            throw std::runtime_error("shader compilation failed:" + errLog);
         }
     }
     Shader(Shader&& other) noexcept {

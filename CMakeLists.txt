@@ -1,4 +1,4 @@
-project(obglsl)
+project(ob-glsl-module)
 cmake_minimum_required(VERSION 3.11)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -10,4 +10,5 @@ find_library(GLBINDING_LIB glbinding)
 
 file(GLOB SRCS "*.cpp")
 add_library(${PROJECT_NAME} SHARED ${SRCS})
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 target_link_libraries(${PROJECT_NAME} glm SDL2::SDL2-static ${GLBINDING_LIB} ${SDL2_IMAGE_LIB})
