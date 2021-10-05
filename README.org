@@ -66,5 +66,4 @@
   }
 #+END_SRC
 
-#+RESULTS:
-[[file:img/mandel.png]]
+[[img/mandel.png]]
