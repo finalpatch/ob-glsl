@@ -1,5 +1,9 @@
 #+TITLE:     GLSL code blocks for Emacs Org-mode
 
+This org-mode extension adds the capability to run GLSL code blocks directly
+from inside Emacs and immediately displays the rendering results inline in your
+org-mode buffers.
+
 * Requirements
   - SDL2 (for creating OpenGL context)
   - SDL2_image (for saving PNG files)
