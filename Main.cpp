@@ -89,7 +89,7 @@ emacs_value obGlslRun (emacs_env* env,
 };
 
 struct PlaceHolder {
-    operator void*() const {return nullptr;}
+    operator glbinding::GetProcAddress() const {return nullptr;}
     operator bool() const {return false;}
 };
  
