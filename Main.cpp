@@ -41,14 +41,21 @@ void main() {
     uv /= scale;
     fragColor = vec4(mandel(uv), 1.0);
 })";
-    
+
 emacs_value obGlslRun (emacs_env* env,
                        const std::string& shaderCode,
                        int width,
                        int height,
                        const std::string& outputPath) {
-    resize(width, height);
-
+    FrameBuffer fb;
+    RenderBuffer rb;
+    rb.bind();
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
+    fb.bind();
+    fb.renderBuffer(rb);
+    if (!fb.check()) 
+        throw std::runtime_error("framebuffer is not complete!");
+    
     // prepare shader
     std::vector<Shader> shaders;
     shaders.emplace_back(GL_VERTEX_SHADER, vs);
@@ -68,25 +75,33 @@ emacs_value obGlslRun (emacs_env* env,
 
     // read back
     std::vector<uint8_t> pixels(width * 4 * height);
-    glReadnPixels(0, 0, width, height, GL_RGBA,  GL_UNSIGNED_BYTE, pixels.size(), pixels.data());
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,pixels.data());
+
     auto surface = SDL_CreateRGBSurfaceFrom(pixels.data(), width, height,
                                             32/*depth*/, width * 4/*pitch*/,
                                             0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     IMG_SavePNG(surface, outputPath.data());
     SDL_FreeSurface(surface);
-
+    
     auto estr = env->make_string(env, outputPath.data(), outputPath.size());
     return estr;
 };
 
+struct PlaceHolder {
+    operator void*() const {return nullptr;}
+    operator bool() const {return false;}
+};
+ 
 int emacs_module_init (emacs_runtime *ert) noexcept {
     emacs_env* env = ert->get_environment (ert);
     try {
         init();
-        glbinding::Binding::initialize(nullptr);
+        glbinding::Binding::initialize(PlaceHolder());
     } catch (std::exception& e) {
         reportError(env, e);
     }
+
     bindFunction(env, obGlslRun, "ob-glsl-run");
     provide(env, "ob-glsl-module");
     return 0;

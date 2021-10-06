@@ -18,11 +18,3 @@ void init() {
     ctx = SDL_GL_CreateContext(win);
     if (!ctx) throw std::runtime_error("failed to create gl context");
 }
-
-void resize(int w, int h) {
-    SDL_SetWindowSize(win, w, h);
-}
-
-void present() {
-    SDL_GL_SwapWindow(win);
-}

@@ -38,8 +38,7 @@ public:
     GLuint handle() const {return _handle;}
 };
 
-class RenderProgram
-{
+class RenderProgram {
     GLuint _handle = 0;
 public:
     RenderProgram(const std::vector<Shader>& shaders)
@@ -81,8 +80,7 @@ public:
     }
 };
 
-class VertexArray
-{
+class VertexArray {
     GLuint _handle = 0;
 public:
     VertexArray() {
@@ -99,5 +97,50 @@ public:
     }
     void bind() {
         glBindVertexArray(_handle);
+    }
+};
+
+class RenderBuffer {
+    GLuint _handle = 0;
+    friend class FrameBuffer;
+public:
+    RenderBuffer() {
+        glGenRenderbuffers(1, &_handle);
+    }
+    virtual ~RenderBuffer() {
+        if (_handle)
+            glDeleteRenderbuffers(1, &_handle);
+    }
+    RenderBuffer(RenderBuffer&& other) noexcept {
+        _handle = other._handle;
+        other._handle = 0;
+    }
+    void bind() {
+        glBindRenderbuffer(GL_RENDERBUFFER, _handle);
+    }
+};
+
+class FrameBuffer {
+    GLuint _handle = 0;
+public:
+    FrameBuffer() {
+        glGenFramebuffers(1, &_handle);
+    }
+    virtual ~FrameBuffer() {
+        if (_handle)
+            glDeleteFramebuffers(1, &_handle);
+    }
+    FrameBuffer(FrameBuffer&& other) noexcept {
+        _handle = other._handle;
+        other._handle = 0;
+    }
+    void bind() {
+        glBindFramebuffer(GL_FRAMEBUFFER, _handle);
+    }
+    void renderBuffer(const RenderBuffer& rb) {
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb._handle);
+    }
+    bool check() {
+        return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
     }
 };
