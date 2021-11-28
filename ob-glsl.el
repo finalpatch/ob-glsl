@@ -1,4 +1,23 @@
+;;; ob-glsl.el --- description pending -*- lexical-binding: t; -*-
+
+(defcustom ob-glsl-make-command "cmake -G \"Ninja\" . && ninja"
+  "build command used when compiling ob-glsl"
+  :type 'string
+  :group 'ob-glsl)
+
 (require 'ob)
+
+;; setup
+(defun ob-glsl-compile ()
+  (let ((default-directory (file-name-directory load-file-name)))
+	(shell-command ob-glsl-make-command)
+	(load-file
+	 (concat default-directory
+			 (car (directory-files default-directory nil "^ob-glsl-module\\.\\(so\\|dll\\)$"))))
+	))
+(when (not (featurep 'ob-glsl-module))
+  (ob-glsl-compile))
+
 (require 'ob-glsl-module)
 
 (defvar org-babel-default-header-args:glsl
@@ -37,3 +56,4 @@ This function is called by `org-babel-execute-src-block'."
   (error "glsl does not support sessions"))
 
 (provide 'ob-glsl)
+;;; ob-glsl.el ends here
