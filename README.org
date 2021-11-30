@@ -22,8 +22,8 @@ org-mode buffers.
      ninja
      #+end_src
 
-  This will create the Emacs dynamic module ~ob-glsl-module.so~ or
-  ~ob-glsl-module.dll~.
+  This will create the Emacs dynamic module ~ob-glsl-module.so~ (Linux) or
+  ~ob-glsl-module.dll~ (Windows) or ~ob-glsl-module.dylib~ (MacOS).
 
 * Installing
   1. Put both ~ob-glsl.el~ and the dynamic module under your elisp load path.
