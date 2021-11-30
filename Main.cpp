@@ -88,16 +88,11 @@ emacs_value obGlslRun (emacs_env* env,
     return estr;
 };
 
-struct PlaceHolder {
-    operator glbinding::GetProcAddress() const {return nullptr;}
-    operator bool() const {return false;}
-};
- 
 int emacs_module_init (emacs_runtime *ert) noexcept {
     emacs_env* env = ert->get_environment (ert);
     try {
         init();
-        glbinding::Binding::initialize(PlaceHolder());
+        glbinding::Binding::initialize(nullptr);
     } catch (std::exception& e) {
         reportError(env, e);
     }
