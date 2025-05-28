@@ -78,7 +78,15 @@ emacs_value obGlslRun (emacs_env* env,
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,pixels.data());
 
-    auto surface = SDL_CreateRGBSurfaceFrom(pixels.data(), width, height,
+    // Flip the pixel data vertically
+    std::vector<uint8_t> flippedPixels(width * 4 * height);
+    for (int y = 0; y < height; ++y) {
+        memcpy(flippedPixels.data() + y * width * 4,
+			   pixels.data() + (height - 1 - y) * width * 4,
+			   width * 4);
+    }
+
+    auto surface = SDL_CreateRGBSurfaceFrom(flippedPixels.data(), width, height,
                                             32/*depth*/, width * 4/*pitch*/,
                                             0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     IMG_SavePNG(surface, outputPath.data());
@@ -92,7 +100,7 @@ int emacs_module_init (emacs_runtime *ert) noexcept {
     emacs_env* env = ert->get_environment (ert);
     try {
         init();
-        glbinding::Binding::initialize(nullptr);
+        glbinding::Binding::initialize(false);
     } catch (std::exception& e) {
         reportError(env, e);
     }
